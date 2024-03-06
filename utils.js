@@ -110,7 +110,7 @@ export function createPlayerEmbed(profile) {
     ],
     url: 'https://discord.com/developers/docs/intro',
     thumbnail: {
-      url: 'https://cdn.discordapp.com/avatars/1090372582781497424/4bda9edf7144f97f6d4375829662b9c0.png',
+      url: 'https://raw.githubusercontent.com/shaydewael/example-app/main/assets/fake-icon.png',
     },
   };
 }
