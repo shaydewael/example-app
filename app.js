@@ -3,12 +3,13 @@ import express from 'express';
 import {
   InteractionType,
   InteractionResponseType,
-  InteractionResponseFlags,
-  MessageComponentTypes,
-  ButtonStyleTypes,
 } from 'discord-interactions';
-import { VerifyDiscordRequest, getRandomEmoji, DiscordRequest } from './utils.js';
-import { getShuffledOptions, getResult } from './game.js';
+import {
+  VerifyDiscordRequest,
+  getServerLeaderboard,
+  createPlayerEmbed,
+} from './utils.js';
+import { getFakeProfile } from './game.js';
 
 // Create an express app
 const app = express();
@@ -16,7 +17,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
-
 // Store for in-progress games. In production, you'd want to use a DB
 const activeGames = {};
 
@@ -25,7 +25,7 @@ const activeGames = {};
  */
 app.post('/interactions', async function (req, res) {
   // Interaction type and data
-  const { type, id, data } = req.body;
+  const { type, data } = req.body;
 
   /**
    * Handle verification requests
@@ -41,17 +41,105 @@ app.post('/interactions', async function (req, res) {
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
 
-    // "test" command
-    if (name === 'test') {
+    console.log(req.body);
+
+    // "leaderboard" command
+    if (name === 'leaderboard') {
       // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          // Fetches a random emoji to send from a helper function
-          content: 'hello world ' + getRandomEmoji(),
+          content: await getServerLeaderboard(req.body.guild.id),
         },
       });
     }
+    // "profile" command
+    if (name === 'profile') {
+      const profile = getFakeProfile(0);
+      const profileEmbed = createPlayerEmbed(profile);
+      
+      // Use interaction context that the interaction was triggered from
+      const interactionContext = req.body.context;
+
+      // Construct `data` for our interaction response. The profile embed will be included regardless of interaction context
+      let profilePayloadData = {
+        embeds: [profileEmbed],
+      };
+
+      // If profile isn't run in a DM with the app, we'll make the response ephemeral and add a share button
+      if (interactionContext !== 1) {
+        // Make message ephemeral
+        profilePayloadData['flags'] = 64;
+        // Add button to components
+        profilePayloadData['components'] = [
+          {
+            type: 1,
+            components: [
+              {
+                type: 2,
+                label: 'Share Profile',
+                custom_id: 'share_profile',
+                style: 2,
+              },
+            ],
+          },
+        ];
+      }
+
+      // Send response
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: profilePayloadData,
+      });
+    }
+    // "link" command
+    if (name === 'link') {
+      // Send a message into the channel where command was triggered from
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content:
+            'Authorize your Quests of Wumpus account with your Discord profile.',
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  label: 'Link Account',
+                  style: 5,
+                  // If you were building this functionality, you could guide the user through authorizing via your game/site
+                  url: 'https://discord.com/developers/docs/intro',
+                },
+              ],
+            },
+          ],
+        },
+      });
+    }
+    // "wiki" command
+    if (name === 'wiki') {
+      // Send a message into the channel where command was triggered from
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: 'wiki was run',
+        },
+      });
+    }
+  }
+
+  if (type === InteractionType.MESSAGE_COMPONENT) {
+    const profile = getFakeProfile(0);
+    const profileEmbed = createPlayerEmbed(profile);
+    //TODO: will probably need to check app_permissions
+    //TODO: interaction_metadata?
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        embeds: [profileEmbed]
+      },
+    });
   }
 });
 
