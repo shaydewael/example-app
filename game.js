@@ -12,6 +12,10 @@ export function getFakeUsername(p) {
   return fakePlayerProfiles[position].username;
 }
 
+export function getWikiItem(value) {
+  return fakeGameItems.find((el) => el.value === value);
+}
+
 export const fakePlayerProfiles = [
   {
     username: 'WumpusWhisperer',
@@ -103,36 +107,43 @@ export const fakeGameItems = [
   {
     name: 'Map',
     value: 'item_map',
+    emoji: ':map:',
     description: 'A detailed map that reveals hidden paths and secret locations'
   },
   {
     name: `Wumpus' Feather`,
     value: 'item_feather',
+    emoji: ':feather:',
     description: 'A rare and magical feather, said to bring good luck to those who possess it'
   },
   {
     name: 'Glowing Orb',
     value: 'item_orb',
+    emoji: ':crystal_ball:',
     description: 'A mysterious orb that guides players towards their next quest'
   },
   {
     name: 'Soothing Tonic',
     value: 'item_tonic',
+    emoji: ':teapot:',
     description: 'A healing tonic that restores health and provides a brief speed boost to the player\'s character'
   },
   {
     name: 'Luminous Crystal',
     value: 'item_crystal',
+    emoji: ':rock:',
     description: 'A radiant crystal that illuminates dark areas and wards off shadows'
   },
   {
     name: 'Celestial Key',
     value: 'item_key',
+    emoji: ':key:',
     description: 'Unlocks hidden portals to secret realms'
   },
   {
     name: 'Dreamcatcher Amulet',
     value: 'item_amulet',
+    emoji: ':nazar_amulet:',
     description: 'Protects from nightmares and negative effects during rest periods'
   }
 ];

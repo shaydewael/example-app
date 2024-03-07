@@ -9,7 +9,7 @@ import {
   getServerLeaderboard,
   createPlayerEmbed,
 } from './utils.js';
-import { getFakeProfile } from './game.js';
+import { getFakeProfile, getWikiItem } from './game.js';
 
 // Create an express app
 const app = express();
@@ -119,11 +119,13 @@ app.post('/interactions', async function (req, res) {
     }
     // "wiki" command
     if (name === 'wiki') {
+      const option = data.options[0];
+      const selectedItem = getWikiItem(option.value);
       // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: 'wiki was run',
+          content: `${selectedItem.emoji} **${selectedItem.name}**: ${selectedItem.description}`
         },
       });
     }
