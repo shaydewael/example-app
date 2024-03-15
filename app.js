@@ -1,9 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import {
-  InteractionType,
-  InteractionResponseType,
-} from 'discord-interactions';
+import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import {
   VerifyDiscordRequest,
   getServerLeaderboard,
@@ -34,14 +31,15 @@ app.post('/interactions', async function (req, res) {
     return res.send({ type: InteractionResponseType.PONG });
   }
 
+  // Log request bodies
+  console.log(req.body);
+
   /**
    * Handle slash command requests
    * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
-
-    console.log(req.body);
 
     // "leaderboard" command
     if (name === 'leaderboard') {
@@ -57,7 +55,7 @@ app.post('/interactions', async function (req, res) {
     if (name === 'profile') {
       const profile = getFakeProfile(0);
       const profileEmbed = createPlayerEmbed(profile);
-      
+
       // Use interaction context that the interaction was triggered from
       const interactionContext = req.body.context;
 
@@ -125,7 +123,7 @@ app.post('/interactions', async function (req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `${selectedItem.emoji} **${selectedItem.name}**: ${selectedItem.description}`
+          content: `${selectedItem.emoji} **${selectedItem.name}**: ${selectedItem.description}`,
         },
       });
     }
@@ -139,7 +137,7 @@ app.post('/interactions', async function (req, res) {
     return res.send({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        embeds: [profileEmbed]
+        embeds: [profileEmbed],
       },
     });
   }
